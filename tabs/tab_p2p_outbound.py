@@ -1,6 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.graph_objs as go
 import dash_table
 
 from dash.dependencies import Output, Input
@@ -56,28 +57,26 @@ layout = html.Div([
             Input("date-range", "end_date")])
 def update_p2p_out_figure(peer, start_date, end_date):
   df = dataframe
-  data = df[(df.date_time >= start_date) & (df.date_time <= end_date)]
+  df = df[(df.date_time >= start_date) & (df.date_time <= end_date)]
   title = "Peer's IP "
   if peer != None and peer != "all-peers":
-    data = df[(df.date_time >= start_date) & (df.date_time <= end_date) & (data.peer_addr == peer)]
+    df = df[df.peer_addr == peer]
     title += peer
   else:
     title = "All peers" # TO DO: agregate data
 
-  figure = {
-      "data": [
-          {"x": data["date_time"], "y": data["rd_count"], "type": "lines", "name": "read"},
-          {"x": data["date_time"], "y": data["wr_count"], "type": "lines", "name": "written"},
-      ],
-      "layout": {
-          "title": {
-              "text": f"P2P outbound traffic. {title}",
-              "x": 0.05,
-              "xanchor": "left",
-              "xaxis": {"fixedrange": True},
-          },
-      },
-  }
+
+  trace0 = go.Scatter(
+    x = df["date_time"], y = df["rd_count"], name="read", mode="lines", line=dict(color="#FF8000"))
+  trace1 = go.Scatter(
+    x = df["date_time"], y = df["wr_count"], name="written", mode="lines", line=dict(color="#09557F"))
+
+  data = [trace0, trace1]
+  layout = go.Layout(title="P2P outbound traffic", 
+                    yaxis=dict(title="KBytes", zeroline=False),
+                    xaxis=dict(title="date-time", zeroline=False))
+  figure = go.Figure(data=data, layout=layout)
+
   return figure
 
 

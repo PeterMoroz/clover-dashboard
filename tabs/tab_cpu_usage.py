@@ -1,6 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.graph_objs as go
 from dash.dependencies import Output, Input
 
 from app import app
@@ -32,20 +33,16 @@ layout = html.Div([
             Input("date-range", "end_date")])
 def update_cpu_usage_figure(start_date, end_date):
   df = dataframe
-  data = df[(df.date_time >= start_date) & (df.date_time <= end_date)]
+  df = df[(df.date_time >= start_date) & (df.date_time <= end_date)]
 
-  figure = {
-      "data": [
-          {"x": data["date_time"], "y": data["kernel"], "type": "lines", "name": "kernel"},
-          {"x": data["date_time"], "y": data["user"], "type": "lines", "name": "user"},
-      ],
-      "layout": {
-          "title": {
-              "text": "CPU usage",
-              "x": 0.05,
-              "xanchor": "left",
-              "xaxis": {"fixedrange": True},
-          },
-      },
-  }
+  trace0 = go.Scatter(
+    x = df["date_time"], y = df["kernel"], name="kernel", mode="lines", line=dict(color="#00A378"))
+  trace1 = go.Scatter(
+    x = df["date_time"], y = df["user"], name="user", mode="lines", line=dict(color="#0085AF"))
+
+  data = [trace0, trace1]
+  layout = go.Layout(title="CPU usage", 
+                    yaxis=dict(title="% of total load", zeroline=False),
+                    xaxis=dict(title="date-time", zeroline=False))
+  figure = go.Figure(data=data, layout=layout)
   return figure

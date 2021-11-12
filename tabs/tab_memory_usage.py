@@ -1,6 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.graph_objs as go
 from dash.dependencies import Output, Input
 
 from app import app
@@ -32,20 +33,16 @@ layout = html.Div([
             Input("date-range", "end_date")])
 def update_memory_usage_figure(start_date, end_date):
   df = dataframe
-  data = df[(df.date_time >= start_date) & (df.date_time <= end_date)]
+  df = df[(df.date_time >= start_date) & (df.date_time <= end_date)]
 
-  figure = {
-      "data": [
-          {"x": data["date_time"], "y": data["virtual"], "type": "lines", "name": "virtual"},
-          {"x": data["date_time"], "y": data["physical"], "type": "lines", "name": "physical"},
-      ],
-      "layout": {
-          "title": {
-              "text": "Memory usage",
-              "x": 0.05,
-              "xanchor": "left",
-              "xaxis": {"fixedrange": True},
-          },
-      },
-  }
+  trace0 = go.Scatter(
+    x = df["date_time"], y = df["virtual"], name="virtual", mode="lines", line=dict(color="#013848"))
+  trace1 = go.Scatter(
+    x = df["date_time"], y = df["physical"], name="physical", mode="lines", line=dict(color="#0085AF"))
+
+  data = [trace0, trace1]
+  layout = go.Layout(title="Memory usage", 
+                    yaxis=dict(title="KBytes", zeroline=False),
+                    xaxis=dict(title="date-time", zeroline=False))
+  figure = go.Figure(data=data, layout=layout)
   return figure
