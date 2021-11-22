@@ -22,7 +22,7 @@ app.layout = html.Div(
                     children="Clover blockchain analytics", className="header-title"
                 ),
                 html.P(
-                    children="Analyze P2P traffic of your nodes",
+                    children="Analyze your node's activity",
                     className="header-description",
                 ),
             ],
