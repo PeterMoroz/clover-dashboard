@@ -71,13 +71,13 @@ def update_p2p_in_figure(peer, start_date, end_date):
     title = "All peers"
 
   trace0 = go.Scatter(
-    x = df["date_time"], y = df["rd_count"], name="read", mode="lines", line=dict(color="#FF8000"))
+    x = df["date_time"], y = df["rd_count"], name="ingress", mode="lines", line=dict(color="#FF8000"))
   trace1 = go.Scatter(
-    x = df["date_time"], y = df["wr_count"], name="written", mode="lines", line=dict(color="#09557F"))
+    x = df["date_time"], y = df["wr_count"], name="egress", mode="lines", line=dict(color="#09557F"))
 
   data = [trace0, trace1]
   layout = go.Layout(title="P2P inbound traffic", 
-                    yaxis=dict(title="KBytes", zeroline=False),
+                    yaxis=dict(title="Bytes/s", zeroline=False),
                     xaxis=dict(title="date-time", zeroline=False))
   figure = go.Figure(data=data, layout=layout)
 
@@ -95,10 +95,10 @@ def update_p2p_in_table(peer, start_date, end_date):
     df = df[df.peer_addr == peer]
     df.drop("peer_addr", axis=1, inplace=True)
     df = df[["date_time", "rd_count", "wr_count"]]
-    df.rename(columns={"date_time": "Date Time", "rd_count": "Read bytes", "wr_count": "Written bytes"}, inplace=True)
+    df.rename(columns={"date_time": "Date Time", "rd_count": "ingress (bytes/s)", "wr_count": "egress (bytes/s)"}, inplace=True)
   else:
     df = df[["date_time", "peer_addr", "rd_count", "wr_count"]]
-    df.rename(columns={"date_time": "Date Time", "peer_addr": "Peer's IP", "rd_count": "Read bytes", "wr_count": "Written bytes"}, inplace=True)
+    df.rename(columns={"date_time": "Date Time", "peer_addr": "Peer's IP", "rd_count": "ingress (bytes/s)", "wr_count": "egress (bytes/s)"}, inplace=True)
 
   data_table = dash_table.DataTable(
       id="p2p-in-table-data",
