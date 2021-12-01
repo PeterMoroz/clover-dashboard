@@ -11,6 +11,7 @@ from tabs import tab_p2p_outbound
 from tabs import tab_transactions
 from tabs import tab_cpu_usage
 from tabs import tab_memory_usage
+from tabs import tab_disk_usage
 
 from datetime import datetime
 
@@ -49,6 +50,7 @@ app.layout = html.Div(
                 dcc.Tab(label="Transactions", value="transactions"),
                 dcc.Tab(label="CPU usage", value="cpu-usage"),
                 dcc.Tab(label="Memory usage", value="memory-usage"),
+                dcc.Tab(label="Disk usage", value="disk-usage"),
             ]
         ),
         html.Div([html.Div(id="tabs-content")],
@@ -72,7 +74,8 @@ def render_content(tab):
         return tab_cpu_usage.layout
     elif tab == "memory-usage":
         return tab_memory_usage.layout
-
+    elif tab == "disk-usage":
+        return tab_disk_usage.layout
 
 
 if __name__ == "__main__":
