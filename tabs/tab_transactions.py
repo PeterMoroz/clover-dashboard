@@ -56,6 +56,17 @@ layout = html.Div([
             ]
        ),
 
+        html.Div(
+            children=[
+                html.Div(
+                    children=dcc.Graph(
+                        id="transactions-complete-time", config={"displayModeBar": False},),
+                    className="card"
+                )
+            ]
+       ),
+
+
        html.Div(
           children=[
               html.Div(
@@ -102,7 +113,39 @@ def update_transactions_figure(statuses, start_date, end_date):
       autosize=True,
       title={"text": "Transactions", "font": {"color": "black"}, "x": 0.5},
       xaxis={"range": [df["date_time"].min(), df["date_time"].max()]},
-      yaxis={"title": "amount"},
+      yaxis={"title": "amount" },
+    ),
+  }  
+  return figure
+
+
+@app.callback(Output("transactions-complete-time", "figure"),
+            [Input("tx-status-filter", "value"), 
+            Input("date-range", "start_date"), 
+            Input("date-range", "end_date")])
+def update_transactions_complete_time_figure(statuses, start_date, end_date): 
+  figure = {}
+  df = dataframe.copy(deep=True)
+  df = df[(df.date_time >= start_date) & (df.date_time <= end_date)]  
+  trace = []
+  for status in statuses:
+    trace.append(go.Scatter(x=df[df.status == status]["date_time"],
+                            y=df[df.status == status]["complete_time"],
+                            mode="lines",
+                            opacity=0.7,
+                            name=tx_status_names[status],
+                            textposition="bottom center"))
+  traces = [trace]
+  data = [val for sublist in traces for val in sublist]
+  figure = {"data": data,
+    "layout": go.Layout(
+      colorway=["#1E90FF", "#FF8C00", "#228B22", "#FF4500", "#9370DB", "#A52A2A", "#DDA0DD"],
+      margin={"b": 15},
+      hovermode="x",
+      autosize=True,
+      title={"text": "Average complete time (ms)", "font": {"color": "black"}, "x": 0.5},
+      xaxis={"range": [df["date_time"].min(), df["date_time"].max()]},
+      yaxis={"title": "complete time"},
     ),
   }  
   return figure
@@ -149,8 +192,8 @@ def update_transactions_figure(statuses, start_date, end_date):
   df = df[(df.status >= statuses[0]) & (df.status <= statuses[-1])]
   df["status"] = df["status"].map(tx_status_names)
   df["type"] = df["type"].map(tx_types_names)
-  df = df[["date_time", "type", "status", "amount"]]
-  df.rename(columns={"date_time": "Date Time", "type": "Type", "status": "Status", "amount": "Amount"}, inplace=True)
+  df = df[["date_time", "type", "status", "amount", "complete_time"]]
+  df.rename(columns={"date_time": "Date Time", "type": "Type", "status": "Status", "amount": "Amount", "complete_time": "Avg complete time"}, inplace=True)
 
   data_table = dash_table.DataTable(
       id="tx-table-data",
